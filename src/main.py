@@ -8,15 +8,13 @@ def main():
     X, y = util.load_data()
     
     # no of nodes in each layer first(784) and last(10) are fixed for this digit-recognization-problem.
-    layers_size = [784, 100, 30, 10]
+    layers_size = [784, 300, 60, 10]
 
     # intializing
     nn = network.NeuralNetwork(layers_size)
-    nn.isShuffle = True
-    nn.isValidate = True
     
     # training the network
-    nn.fit(X, y, ephocs=10)
+    nn.fit(X, y, ephocs=5)
 
     # some example predictions
     preds = [7, 3425, 14634, 27345, 38234]
@@ -36,9 +34,8 @@ def predict_for_kaggle_test_set(nn,filename):
     this function is responsible for saving test predictions to given filename.
     
     Parameters:
-        nn      :   object          (a trained neural network object)
-        filename:   str             (filename for saving & identifying different test predictions)
-
+        nn      :   object          
+        filename:   str             
     Returns:
         (no-returns)
     """

@@ -8,8 +8,8 @@ class NeuralNetwork:
     learning_rate = 0.0001
     l0, l1, l2, l3 =  0, 0, 0, 0
 
-    isShuffle = False       # shuffle flag:    for shuffling data while training the network
-    isValidate = False      # validation flag: for viewing validation results while training the network
+    isShuffle = True       # shuffle flag:    for shuffling data while training the network
+    isValidate = True      # validation flag: for viewing validation results while training the network
     X_val = np.array([])   
     y_val = np.array([])
 
@@ -160,25 +160,27 @@ class NeuralNetwork:
         l0, l1, l2, l3 = activations[0], activations[1], activations[2], activations[3]
         z1, z2 = zs[0], zs[1]
 
-        # calculating loss of network (or) layer 3           # demo shapes
-        l3_error = l3 - y.T                                  # [1, 10] = [1, 10] - [1, 10]
+        # calculating loss of network (or) layer 3                       # demo shapes
+        l3_error = l3 - y.T                                              # [1, 10] = [1, 10] - [1, 10]
 
         # calculating  layer3 weights and biases
-        l3_delta = np.multiply(l3_error, l3)                 # [1, 10] = [1, 0] * [1, 10]
-        l3_new_weights = l3_delta.T.dot(l2)                  # [10, 90] = [10, 1] * [1,90]
+        l3_new_biases = l3_error                                         # [1, 10] = [1, 10] * [1, 10]
+        l3_new_weights = l3_error.T.dot(l2)                              # [10, 90] = [10, 1] * [1,90]
         
         # calculating  layer2 weights and biases
-        l2_error = l3_delta.dot(self.weights['l3'])          # [1, 90] = [1, 10] * [10, 90]
-        l2_delta = np.multiply(l2_error, util.relu(z2, derivative=True)) # [1, 90] = [1, 90] * [1,90]
-        l2_new_weights = l2_delta.T.dot(l1)                  # [90, 300] = [90, 1] * [1, 300]
+        l2_error = l3_error.dot(self.weights['l3'])                      # [1, 90] = [1, 10] * [10, 90]
+        l2_error = np.multiply(l2_error, util.relu(z2, derivative=True)) # [1, 90] = [1, 90] * [1,90]
+        l2_new_biases = l2_error
+        l2_new_weights = l2_error.T.dot(l1)                              # [90, 300] = [90, 1] * [1, 300]
         
         # calculating  layer1 weights and biases
-        l1_error = l2_delta.dot(self.weights['l2'])          # [1, 300] = [1, 90] * [90, 300]
-        l1_delta = np.multiply(l1_error, util.relu(z1, derivative=True)) # [1,300] = [1, 300] * [1, 300]
-        l1_new_weights = l1_delta.T.dot(l0)                  # [300, 784] = [300, 1] * [1, 784]
+        l1_error = l2_error.dot(self.weights['l2'])                      # [1, 300] = [1, 90] * [90, 300]
+        l1_error = np.multiply(l1_error, util.relu(z1, derivative=True)) # [1, 300] = [1, 300] * [1, 300]
+        l1_new_biases = l1_error
+        l1_new_weights = l1_error.T.dot(l0)                              # [300, 784] = [300, 1] * [1, 784]
 
         new_weights = [l3_new_weights, l2_new_weights, l1_new_weights]
-        new_biases = [l3_delta, l2_delta, l1_delta]
+        new_biases = [l3_new_biases, l2_new_biases, l1_new_biases]
 
         return l3_error, new_weights, new_biases
 
